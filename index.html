@@ -33,7 +33,7 @@
     <section id="home" class="pt-32 pb-20 gradient-bg text-white relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <span class="bg-cyan-500/20 text-cyan-300 px-4 py-1.5 rounded-full text-sm font-medium border border-cyan-500/30">طبيب أسنان - المستوى الرابع</span>
-            <h1 class="text-4xl md:text-6xl font-black mt-6 leading-tight">نحن لا نعيد النبض ولكننا نعيد الإبتسامه</h1>
+            <h1 class="text-4xl md:text-6xl font-black mt-6 leading-tight">نحن لا نعيد النبض ولكننا نعيد الإابتسامه</h1>
             <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-2xl mx-auto">رعاية طبية متميزة بأحدث التقنيات لضمان ابتسامة صحية ومشرقة تناسب تطلعاتكم.</p>
             <div class="mt-10 flex flex-wrap justify-center gap-4">
                 <a href="#booking" class="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold px-8 py-4 rounded-xl shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5">احجز موعد الآن</a>
@@ -87,7 +87,7 @@
             <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
                 <div class="gradient-bg text-white p-8 text-center">
                     <h2 class="text-2xl font-black">حجز موعد عيادة</h2>
-                    <p class="text-slate-300 text-sm mt-1">الرجاء إدخال بياناتك لحجز موعد وإرساله للدكتور</p>
+                    <p class="text-slate-300 text-sm mt-1">الرجاء إدخل بياناتك لحجز موعد وإرساله للدكتور</p>
                 </div>
                 
                 <form id="bookingForm" class="p-8 space-y-6">
@@ -98,12 +98,12 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-2">رقم الهاتف (واتساب بترميز الدولة)</label>
-                            <input type="tel" id="patientPhone" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition text-left" placeholder="مثال: 967770000000">
+                            <input type="tel" id="patientPhone" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition text-left" placeholder="967770000000">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">الخدمة المطلوبة</label>
+                            <label class="block text-sm font-medium text-slate-700 mb-2"> الخدمة المطلوبة</label>
                             <select id="requestedService" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 outline-none transition bg-white">
                                 <option>فحص واستشارات مجانية</option>
                                 <option>تنظيف الأسنان وإزالة الجير</option>
@@ -228,7 +228,7 @@
             return `${d.getDate()} / ${d.getMonth() + 1} / ${d.getFullYear()}`;
         }
 
-        // تسجيل الحجز مع التحقق الفوري من تاريخ اليوم المطلوب
+        // دالة إرسال الحجز والتحقق والتوجيه الفوري للواتساب
         document.getElementById( bookingForm ).addEventListener( submit , async (e) => {
             e.preventDefault();
             const name = document.getElementById( patientName ).value;
@@ -236,7 +236,7 @@
             const service = document.getElementById( requestedService ).value;
             const date = document.getElementById( bookingDate ).value;
 
-            // إذا تساوى التاريخ وكانت الحالة مقبولة أو قيد مراجعة يمنعه فوراً
+            // التحقق من الحجز المسبق في نفس اليوم
             const isDateTaken = allAppointments.some(app => app.date === date && (app.status === "قيد الانتظار" || app.status === "تم القبول"));
 
             if (isDateTaken) {
@@ -245,6 +245,7 @@
             }
 
             try {
+                // حفظ البيانات في الفايربيز
                 await addDoc(appointmentsRef, {
                     name: name,
                     phone: phone,
@@ -258,14 +259,16 @@
                 const targetDoctor = "967770423656";
                 const message = `🚨 *إشعار حجز موعد جديد عيادة الدكتور خليل* 🚨%0A%0A👤 *اسم المريض:* ${name}%0A📱 *رقم التواصل:* ${phone}%0A🩺 *الخدمة المطلوبة:* ${service}%0A📅 *التاريخ المفضّل:* ${formatDateString(date)}%0A%0A💬 _تم تسجيل الحجز بنجاح عبر موقع العيادة بانتظار مراجعتكم وقبول الطلب._`;
                 
+                alert( تم تسجيل طلب موعدك بنجاح! سيتم توجيهك الآن مباشرة إلى واتساب الدكتور خليل لتأكيد التنسيق. );
                 window.open(`https://wa.me/${targetDoctor}?text=${message}`,  _blank );
-                alert( تم تسجيل حجزك بنجاح وجاري إرسال الإشعار وتفاصيل موعدك لدكتور العيادة عبر الواتساب! );
                 document.getElementById( bookingForm ).reset();
             } catch (error) {
+                alert( حدث خطأ أثناء الاتصال بقاعدة البيانات، يرجى المحاولة مرة أخرى. );
                 console.error("Error: ", error);
             }
         });
 
+        // الاستماع اللحظي للبيانات وحقنها في لوحة التحكم تلقائياً
         onSnapshot(appointmentsRef, (snapshot) => {
             allAppointments = [];
             snapshot.forEach(doc => allAppointments.push({id: doc.id, ...doc.data()}));
@@ -310,7 +313,7 @@
             });
             container.innerHTML = html;
 
-            // إرسال إشعار أنيق ومنسق للمريض عند الضغط على موافقة أو رفض
+            // إرسال إشعار للمريض عند تعديل حالته
             document.querySelectorAll( .action-btn ).forEach(btn => {
                 btn.addEventListener( click , async (e) => {
                     const id = e.target.getAttribute( data-id );
@@ -323,7 +326,6 @@
                     const docRef = doc(db, "appointments", id);
                     await updateDoc(docRef, { status: newStatus });
 
-                    // صياغة رسالة إشعار واتساب للمريض بشكل أنيق جداً
                     let msg = "";
                     if(newStatus === "تم القبول") {
                         msg = `✨ *إشعار قبول الموعد - عيادة د. خليل الوصابي* ✨%0A%0Aمرحباً أ/ *${name}* المحترم، %0A%0Aنسعد بإبلاغك بأنه *تم قبول وتأكيد حجزك* بنجاح في عيادتنا 🎉%0A%0A🩺 *الخدمة المعتمدة:* ${service}%0A📅 *تاريخ الموعد المعتمد:* ${formatDateString(date)}%0A📍 *العنوان:* صنعاء - مذبح - جوار نادي الشعب%0A%0Aنتطلع لزيارتك، ونتمنى لك دوام الصحة والعافية وموفور الابتسامة المشرقة 🦷✨`;
@@ -331,7 +333,6 @@
                         msg = `✉️ *إشعار تحديث الحجز - عيادة د. خليل الوصابي* ✉️%0A%0Aمرحباً أ/ *${name}*، %0A%0Aنعتذر منك، لقد تم *رفض أو تعديل حالة طلب موعدك* الموجه للعيادة بتاريخ: ${formatDateString(date)} بسبب انشغال العيادة أو امتلاء جدول المواعيد في هذا اليوم المختار.%0A%0Aيرجى الدخول للموقع مجدداً واختيار تاريخ بديل يناسبك لخدمة: *${service}* للتنسيق الفوري.%0A%0Aشاكرين تفهمك اللطيف وطبت بألف خير.`;
                     }
 
-                    // إطلاق نافذة الواتساب فوراً لإرسال الإشعار لقم المريض
                     window.open(`https://wa.me/${phone}?text=${msg}`,  _blank );
                 });
             });
